@@ -1,0 +1,17 @@
+[Bb]in/
+[Oo]bj/
+TestResults/
+AppPackages/
+*.suo
+*.user
+_ReSharper.*
+*.Resharper.user
+*.resharper.user
+UnitTest-Results.xml
+packages/
+.vs
+_NCrunch*
+project.lock.json
+artifacts/
+TestResult.xml
+app.config.secret.json
