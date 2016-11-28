@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MailKit;
 using MailKit.Net.Imap;
+using MailKit.Search;
 
 namespace LinkAggregator.Mail
 {
@@ -14,13 +15,17 @@ namespace LinkAggregator.Mail
         private readonly int _port;
         private readonly string _username;
         private readonly string _password;
+        private readonly List<string> _userWhiteList;
+        private DateTime _fromDateTime;
 
-        public MailLinkFetcher(string server, int port, string username, string password)
+        public MailLinkFetcher(string server, int port, string username, string password, List<string> userWhiteList, DateTime fromDateTime)
         {
             _server = server;
             _port = port;
             _username = username;
             _password = password;
+            _userWhiteList = userWhiteList;
+            _fromDateTime = fromDateTime;
         }
 
         public async Task<IEnumerable<Document>> FetchAsync()
@@ -34,19 +39,32 @@ namespace LinkAggregator.Mail
                 client.Authenticate(_username, _password);
 
                 var inbox = client.Inbox;
-                inbox.Open(FolderAccess.ReadOnly);
+                inbox.Open(FolderAccess.ReadWrite);
 
                 var documents = new List<Document>();
 
-                foreach (var summary in await inbox.FetchAsync(0, 10, MessageSummaryItems.Full | MessageSummaryItems.UniqueId))
+                var query = SearchQuery.DeliveredAfter(_fromDateTime)
+                    .And(SearchQuery.NotSeen);
+
+                var uids = new List<UniqueId>();
+                foreach (var uid in inbox.Search(query))
                 {
-                    documents.Add(new Document
+                    var message = await inbox.GetMessageAsync(uid);
+                    if (_userWhiteList.Contains(message.From.First().Name))
                     {
-                        User = summary.Envelope.From.First().ToString(),
-                        Link = summary.Envelope.Subject,
-                        TimeStamp = DateTime.UtcNow
-                    });
+                        uids.Add(uid);
+                        documents.Add(new Document
+                        {
+                            User = message.From.First().Name,
+                            Subject = message.Subject,
+                            Body = message.TextBody,
+                            TimeStamp = message.Date.UtcDateTime
+                        });
+                    }
                 }
+
+                if (uids.Count > 0)
+                    inbox.AddFlags(uids, MessageFlags.Seen, true);
 
                 client.Disconnect(true);
 

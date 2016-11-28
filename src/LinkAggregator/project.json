@@ -11,6 +11,7 @@
       "dependencies": {
         "System.Net.Http": "4.3.0",
         "System.Diagnostics.Contracts": "4.3.0",
+        "System.Diagnostics.Process": "4.3.0",
         "System.Console": "4.3.0"
       }
     }

@@ -5,6 +5,7 @@
     "copyToOutput": {"includeFiles": ["app.config.json", "app.config.secret.json"] }
   },
   "dependencies": {
+    "NETStandard.Library": "1.6.1",
     "LinkAggregator": {
       "target": "project"
     },

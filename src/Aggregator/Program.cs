@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using KickStart.Net;
 using KickStart.Net.Extensions;
 using LinkAggregator;
+using LinkAggregator.Git;
 using LinkAggregator.Mail;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -31,6 +31,14 @@ namespace Aggregator
             var server = config["email:server"];
             var port = int.Parse(config["email:port"]);
             var username = config["email:username"];
+            var workingDir = config["git:workingDir"];
+            workingDir = workingDir ?? Path.GetTempPath();
+            var repo = config["git:repository"];
+            var frequency = int.Parse(config["email:pollingFrequencyInMins"]);
+
+            var userWhiteListStr = config["email:userWhiteList"];
+
+            var processor = new GitDocumentProcessor(workingDir, repo);
 
             var task = Task.Factory.ScheduleAtFixedDelay(async () =>
             {
@@ -41,17 +49,19 @@ namespace Aggregator
                         server,
                         port,
                         username,
-                        config["email:password"]);
-                    var docs = await fetcher.FetchAsync();
-                    foreach (var doc in docs)
-                    {
-                        Console.WriteLine(doc);
-                    }
+                        config["email:password"],
+                        userWhiteListStr.Split(';').ToList(),
+                        DateTime.UtcNow.Date.AddMonths(-1));
+
+                    var docs = await fetcher.FetchAsync().ToListAsync();
+                    logger.LogInformation($"Found {docs.Count} emails");
+                    if (docs.Count > 0)
+                        processor.Process(docs);
                     logger.LogInformation("Done");
                 }
-            }, 0, 5, TimeUnits.Seconds);
+            }, 0, frequency, TimeUnits.Minutes);
 
-            Console.ReadKey();
+            task.Result.Wait();
         }
     }
 }
