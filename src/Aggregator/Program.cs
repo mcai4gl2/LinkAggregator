@@ -44,20 +44,27 @@ namespace Aggregator
             {
                 using (logger.BeginScope(DateTime.Now))
                 {
-                    logger.LogInformation($"Start fetching emails from {server}:{port} with {username}");
-                    var fetcher = new MailLinkFetcher(
-                        server,
-                        port,
-                        username,
-                        config["email:password"],
-                        userWhiteListStr.Split(';').ToList(),
-                        DateTime.UtcNow.Date.AddMonths(-1));
+                    try
+                    {
+                        logger.LogInformation($"Start fetching emails from {server}:{port} with {username}");
+                        var fetcher = new MailLinkFetcher(
+                            server,
+                            port,
+                            username,
+                            config["email:password"],
+                            userWhiteListStr.Split(';').ToList(),
+                            DateTime.UtcNow.Date.AddMonths(-1));
 
-                    var docs = await fetcher.FetchAsync().ToListAsync();
-                    logger.LogInformation($"Found {docs.Count} emails");
-                    if (docs.Count > 0)
-                        processor.Process(docs);
-                    logger.LogInformation("Done");
+                        var docs = await fetcher.FetchAsync().ToListAsync();
+                        logger.LogInformation($"Found {docs.Count} emails");
+                        if (docs.Count > 0)
+                            processor.Process(docs);
+                        logger.LogInformation("Done");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("Failed", ex);
+                    }
                 }
             }, 0, frequency, TimeUnits.Minutes);
 
