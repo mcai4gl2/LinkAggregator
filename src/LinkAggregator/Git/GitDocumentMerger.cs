@@ -59,6 +59,7 @@ namespace LinkAggregator.Git
             }
 
             _gitCommands.CommitWithMessage("Creating monthly digest");
+            _gitCommands.Push();
         }
     }
 
