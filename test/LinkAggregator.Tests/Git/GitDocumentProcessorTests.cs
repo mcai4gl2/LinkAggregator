@@ -18,12 +18,7 @@ namespace LinkAggregator.Tests.Git
         }
 
         [Test]
-        public void can_clone()
-        {
-            _processor.Clone();
-        }
-
-        [Test]
+        [Ignore("This is an interactive test")]
         public void can_write()
         {
             var doc = new Document

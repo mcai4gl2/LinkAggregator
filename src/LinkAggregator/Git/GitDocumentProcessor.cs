@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,45 +8,27 @@ namespace LinkAggregator.Git
 {
     public class GitDocumentProcessor : IDocumentProcessor
     {
-        private readonly string _baseWorkingDir;
-        private readonly string _gitRepositoryString;
         private readonly string _projectFullDir;
+        private readonly GitCommands _gitCommands;
 
         public GitDocumentProcessor(string baseWorkingDir, string gitRepositoryString)
         {
-            _baseWorkingDir = baseWorkingDir;
-            _gitRepositoryString = gitRepositoryString;
-            _projectFullDir = Path.Combine(_baseWorkingDir, _gitRepositoryString.Split('/')[1].Split('.')[0]);
+            _projectFullDir = Path.Combine(baseWorkingDir, gitRepositoryString.Split('/')[1].Split('.')[0]);
+            _gitCommands = GitCommands.Create(baseWorkingDir, gitRepositoryString, _projectFullDir);         
         }
 
         public IEnumerable<Document> Process(IEnumerable<Document> docs)
         {
-            Clone();
+            _gitCommands.Clone();
             var documents = docs.ToList();
             foreach (var doc in documents)
             {
                 CreateUserFolderIfNotExists(doc);
                 WriteDocument(doc);
             }
-            CommitAndPush();
+            _gitCommands.CommitWithMessage("Adding new links");
+            _gitCommands.Push();
             return documents;
-        }
-
-        public void Clone()
-        {
-            if (Directory.Exists(_projectFullDir))
-            {
-                EmptyFolder(new DirectoryInfo(_projectFullDir));
-                Directory.Delete(_projectFullDir, true);
-            }  
-            var startInfo = new ProcessStartInfo
-            {
-                WorkingDirectory = _baseWorkingDir,
-                FileName = "git",
-                Arguments = $"clone {_gitRepositoryString}"
-            };
-            var process = System.Diagnostics.Process.Start(startInfo);
-            process.WaitForExit();
         }
 
         public void CreateUserFolderIfNotExists(Document doc)
@@ -75,48 +56,6 @@ namespace LinkAggregator.Git
                 writer.WriteLine($"{doc.Body}");
                 writer.Flush();
             }
-        }
-
-        private void EmptyFolder(DirectoryInfo directoryInfo)
-        {
-            foreach (FileInfo file in directoryInfo.GetFiles())
-            {
-                File.SetAttributes(file.FullName, FileAttributes.Normal);
-                file.Delete();
-            }
-
-            foreach (DirectoryInfo subfolder in directoryInfo.GetDirectories())
-            {
-                EmptyFolder(subfolder);
-            }
-        }
-
-        public void CommitAndPush()
-        {
-            var startInfo = new ProcessStartInfo
-            {
-                WorkingDirectory = _projectFullDir,
-                FileName = "git",
-                Arguments = "add ."
-            };
-            var process = System.Diagnostics.Process.Start(startInfo);
-            process.WaitForExit();
-            startInfo = new ProcessStartInfo
-            {
-                WorkingDirectory = _projectFullDir,
-                FileName = "git",
-                Arguments = @"commit -m ""Adding new link"""
-            };
-            process = System.Diagnostics.Process.Start(startInfo);
-            process.WaitForExit();
-            startInfo = new ProcessStartInfo
-            {
-                WorkingDirectory = _projectFullDir,
-                FileName = "git",
-                Arguments = "push"
-            };
-            process = System.Diagnostics.Process.Start(startInfo);
-            process.WaitForExit();
         }
     }
 }

@@ -39,6 +39,7 @@ namespace Aggregator
             var userWhiteListStr = config["email:userWhiteList"];
 
             var processor = new GitDocumentProcessor(workingDir, repo);
+            var merger = new GitDocumentMerger(workingDir, repo);
 
             var task = Task.Factory.ScheduleAtFixedDelay(async () =>
             {
@@ -59,7 +60,11 @@ namespace Aggregator
                         logger.LogInformation($"Found {docs.Count} emails");
                         if (docs.Count > 0)
                             processor.Process(docs);
-                        logger.LogInformation("Done");
+                        logger.LogInformation("Done adding");
+
+                        logger.LogInformation("Start running merger ...");
+                        merger.Process();
+                        logger.LogInformation("Done merging");
                     }
                     catch (Exception ex)
                     {
