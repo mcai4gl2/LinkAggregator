@@ -1,22 +1,17 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26114.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{36A8A52E-6ED7-4370-9B77-DD8A3B869097}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6B6EF353-2D9A-4E5A-A6A2-68B4D3D8DB8D}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "LinkAggregator", "src\LinkAggregator\LinkAggregator.xproj", "{DAEA899A-1ECD-44F9-B5B4-0E24C902FEB2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkAggregator", "src\LinkAggregator\LinkAggregator.csproj", "{DAEA899A-1ECD-44F9-B5B4-0E24C902FEB2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{555701A8-5447-4D60-B9E5-F4199EB4AA89}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "LinkAggregator.Tests", "test\LinkAggregator.Tests\LinkAggregator.Tests.xproj", "{9DE23113-1B0A-4D88-9FBC-C8E57456F28C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkAggregator.Tests", "test\LinkAggregator.Tests\LinkAggregator.Tests.csproj", "{9DE23113-1B0A-4D88-9FBC-C8E57456F28C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Aggregator", "src\Aggregator\Aggregator.xproj", "{E5FE61BF-6E3D-4DD5-829F-0B0BD9983B50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregator", "src\Aggregator\Aggregator.csproj", "{E5FE61BF-6E3D-4DD5-829F-0B0BD9983B50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
